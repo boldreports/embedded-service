@@ -1,0 +1,59 @@
+using BoldReports.Web;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BoldReportsServiceApplication
+{
+    public class Startup
+    {
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllersWithViews();
+            services.AddCors(o => o.AddPolicy("AllowAllOrigins", builder =>
+            {
+                builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+            }));
+            services.AddMvc(m => m.EnableEndpointRouting = false);
+
+            ReportConfig.DefaultSettings = new ReportSettings().RegisterExtensions(new List<string> { "BoldReports.Data.WebData",
+                                                                                                      "BoldReports.Data.PostgreSQL",
+                                                                                                      "BoldReports.Data.Excel",
+                                                                                                       "BoldReports.Data.Csv",
+            "BoldReports.CRI.Barcode",
+            "BoldReports.CRI.PredictiveAnalytics",
+            "BoldReports.Data.MySQL",
+            "BoldReports.Data.Oracle",
+            "BoldReports.Data.Snowflake",
+            "BoldReports.Data.SSAS",
+            "BoldReports.Data.ElasticSearch"});
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "api/{controller=ReportApi}/{action=Index}/{id?}");
+            });
+        }
+    }
+}
